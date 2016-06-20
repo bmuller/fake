@@ -22,7 +22,11 @@ class WrappedCallableDependenciesTask(WrappedCallableTask):
         result = {}
         rdefs = env.get('roledefs', {})
         for erole in env.effective_roles:
-            result.update(rdefs.get(erole, {}))
+            settings = rdefs.get(erole, {})
+            result.update(settings if isinstance(settings, dict) else {})
+        for key in result.iterkeys():
+            value = result[key]
+            result[key] = value() if callable(value) else value
         return result
 
 
