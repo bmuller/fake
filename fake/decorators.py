@@ -25,6 +25,7 @@ class WrappedCallableDependenciesTask(WrappedCallableTask):
             result.update(rdefs.get(erole, {}))
         return result
 
+
 def task(*args, **kwargs):
     # if the wrapper hasn't been called
     if args and not kwargs:

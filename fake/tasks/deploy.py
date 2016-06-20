@@ -24,6 +24,7 @@ env.setdefault('scm', 'git')
 env.setdefault('branch', 'master')
 env.setdefault('keep_releases', 5)
 
+
 @task
 def starting():
     """
@@ -51,11 +52,13 @@ def check():
         dirs = [paths.shared_path.join(f).dirname for f in env.linked_files]
         run("mkdir -p %s" % " ".join(dirs))
 
+
 @task
 def set_previous_revision():
     target = paths.release_path.join("REVISION")
     if test("[ -f %s ]" % target):
         env.previous_revision = run('cat %s' % target)
+
 
 @task
 def updating():
@@ -69,7 +72,8 @@ def updating():
     with cd(paths.release_path):
         run("echo \"%s\" >> REVISION" % env.current_revision)
     execute("symlink_folders")
-    execute("symlink_files") 
+    execute("symlink_files")
+
 
 @task
 def symlink_folders():
@@ -93,6 +97,7 @@ def symlink_folders():
             run("rm -rf %s" % target)
         run("ln -s %s %s" % (source, target))
 
+
 @task
 def symlink_files():
     """
@@ -115,6 +120,7 @@ def symlink_files():
             run("rm -f %s" % target)
         run("ln -s %s %s" % (source, target))
 
+
 @task
 def publishing():
     """
@@ -124,22 +130,25 @@ def publishing():
     run("ln -s %s %s" % (paths.release_path, tmp_current_path))
     run("mv %s %s" % (tmp_current_path, paths.current_path.parent))
 
+
 @task
 def finishing():
     execute("cleanup")
+
 
 @task
 def cleanup():
     """
     Clean up old releases
     """
-    puts("Keeping last %i releases" % env.keep_releases)    
+    puts("Keeping last %i releases" % env.keep_releases)
     releases = run("ls -xtr %(releases_path)s" % paths).split()
     if len(releases) <= env.keep_releases:
         return
 
     for release in releases[:(len(releases) - env.keep_releases)]:
         run("rm -rf %s" % paths.releases_path.join(release))
+
 
 @task
 def reverting():
@@ -149,9 +158,11 @@ def reverting():
     env.release_timestamp = releases[1]
     paths.release_path = paths.releases_path.join(env.release_timestamp)
 
+
 @task
 def finishing_rollback():
     execute("cleanup_rollback")
+
 
 @task
 def cleanup_rollback():

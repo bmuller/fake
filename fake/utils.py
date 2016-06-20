@@ -1,5 +1,5 @@
 from os.path import join, dirname, basename, normpath
-from fake.state import paths
+
 
 class Path(object):
     def __init__(self, *paths):

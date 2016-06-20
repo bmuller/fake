@@ -1,5 +1,3 @@
-from inspect import isfunction
-
 from fabric.state import env
 
 

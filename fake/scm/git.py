@@ -6,7 +6,7 @@ from fake.api import task, env, run, paths, cd, test
 class Git(SCMStrategy):
     def git(self, cmd):
         return run("git %s" % cmd)
-    
+
     def check(self):
         self.git("ls-remote --heads %(repo_url)s > /dev/null" % env)
 
@@ -27,11 +27,11 @@ class Git(SCMStrategy):
     def fetch_revision(self):
         return self.git("rev-list --max-count=1 %(branch)s" % env)
 
-              
 
 # this is safe to do here, because this module will be included as necessary,
 # after the env settings in the fabfile.py have been set
 strategy = env.get('git_strategy', Git())
+
 
 @task
 def check():
@@ -39,6 +39,7 @@ def check():
     Check that the repository is reachable.
     """
     strategy.check()
+
 
 @task
 def create_release():
@@ -55,6 +56,7 @@ def create_release():
         strategy.update()
         run("mkdir -p %(release_path)s" % paths)
         strategy.release()
+
 
 @task
 def set_current_revision():
