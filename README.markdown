@@ -1,5 +1,5 @@
 # Fake: Fabric + Make
-**Fake** makes Python's [Fabric](http://www.fabfile.org) act like Ruby's [Capistrano](http://capistranorb.com).  "Why in the world add to Fabric," you ask.  Great question!  Fabric is fantastic for streamlining the use of SSH, much like Ruby's [SSHKit](https://github.com/capistrano/sshkit).  Relyable deployments, however, typically involve more than just running a few commands on a remote server.  The deploy process in Capistrano (and mirrored in this project), for instance, rely on a few key features that aren't present in Fabric:
+**Fake** makes Python's [Fabric](http://www.fabfile.org) act like Ruby's [Capistrano](http://capistranorb.com).  "Why in the world add to Fabric," you ask.  Great question!  Fabric is fantastic for streamlining the use of SSH, much like Ruby's [SSHKit](https://github.com/capistrano/sshkit).  Relyable deployments, however, typically involve more than just running a few commands on a remote server.  For instance, the deploy process in Capistrano (and mirrored in this project) relies on a few key features that aren't present in Fabric:
 
 1. the ability to inject tasks in a dependency chain (before you run `TaskA`, always run `TaskB`)
 1. configuration variables with values that are role specific
@@ -72,11 +72,11 @@ from fake.api import env, task
 env.roledefs = {
     'staging': {
         'hosts': ['staging.example.com'],
-	'branch': 'staging'
+        'branch': 'staging'
     },
     'production': {
         'hosts': ['example.com'],
-	'branch': 'master'
+        'branch': 'master'
     }
 }
 
@@ -155,4 +155,4 @@ def restart():
 after(finished, restart)
 ```
 
-Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the `framework.py` file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.
+Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the [`framework.py`](fake/tasks/framework.py) file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.
