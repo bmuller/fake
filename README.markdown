@@ -37,7 +37,7 @@ Fake copies the Capistrano deploy process and deploys code with these steps:
 
 This means that your current code lives in `current`, and new deploys just change where that directory links to.  Rollbacks are as easy as changing where `current` points to.  You also get the benefit of automatically retaining the contents of whatever shared files/folders you want to keep (they actually live in the `shared` directory, and just get re-linked inside your `current` folder on each deploy/rollback).
 
-Here's an example of all that's needed in a fabfile to do all of this:
+Here's an example of all that's needed in a `fabfile.py` to do all of this:
 
 ```python
 from fake.api import env, run, task
@@ -66,8 +66,9 @@ def restart():
 after(finished, restart)
 ```
 
-Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the [`framework.py`](fake/tasks/framework.py) file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.
+Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the [`framework.py`](fake/tasks/framework.py) file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.  To rollback a deploy to the previously deployed version, it's as simple as `fab -R staging rollback`.  Super easy!
 
+See the top of the [deploy.py](fake/tasks/deploy.py) file for additional configuration options.
 
 ## Fabric Additions
 This section covers some of the additional functionality added to Fabric.
