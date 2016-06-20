@@ -1,5 +1,5 @@
 # Fake: Fabric + Make
-**Fake** makes Python's [Fabric](http://www.fabfile.org) act like Ruby's [Capistrano](http://capistranorb.com).  "Why in the world add to Fabric," you ask.  Great question!  Fabric is fantastic for streamlining the use of SSH, much like Ruby's [SSHKit](https://github.com/capistrano/sshkit).  Relyable deployments, however, typically involve more than just running a few commands on a remote server.  For instance, the deploy process in Capistrano (and mirrored in this project) relies on a few key features that aren't present in Fabric:
+**Fake** makes Python's [Fabric](http://www.fabfile.org) act like Ruby's [Capistrano](http://capistranorb.com).  "Why in the world add to Fabric," you ask.  Great question!  Fabric is fantastic for streamlining the use of SSH, much like Ruby's [SSHKit](https://github.com/capistrano/sshkit).  Reliable deployments, however, typically involve more than just running a few commands on a remote server.  For instance, the deploy process in Capistrano (and mirrored in this project) relies on a few key features that aren't present in Fabric:
 
 1. the ability to inject tasks in a dependency chain (before you run `TaskA`, always run `TaskB`)
 1. configuration variables with values that are role specific
@@ -26,6 +26,49 @@ should become:
 from fake.api import env, run, task
 ```
 
+## Deploying
+Fake copies the Capistrano deploy process and deploys code with these steps:
+
+1. Inside a `deploy_path`, create a `releases`, `shared`, and `repo` directory.
+1. Clone a repository into the `repo` directory.
+1. Extract a configurable branch into a subdirectory of the `releases` directory.
+1. Symlink that subdirectory to a `current` folder in the `deploy_path`
+1. Symlink shared files/folders in `shared` into `current`.
+
+This means that your current code lives in `current`, and new deploys just change where that directory links to.  Rollbacks are as easy as changing where `current` points to.  You also get the benefit of automatically retaining the contents of whatever shared files/folders you want to keep (they actually live in the `shared` directory, and just get re-linked inside your `current` folder on each deploy/rollback).
+
+Here's an example of all that's needed in a fabfile to do all of this:
+
+```python
+from fake.api import env, run, task
+from fake.tasks.deploy import *
+
+env.roledefs = {
+    'staging': {
+        'hosts': ['staging.example.com'],
+        'branch': 'staging'
+    },
+    'production': {
+        'hosts': ['example.com'],
+        'branch': 'master'
+    }
+}
+
+env.forward_agent = True
+env.deploy_path = '/home/deployer/app'
+env.user = 'deployer'
+env.repo_url = 'git@github.com:user/repo.git'
+env.linked_dirs = ['static']
+
+@task
+def restart():
+    run('service gunicorn restart')
+after(finished, restart)
+```
+
+Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the [`framework.py`](fake/tasks/framework.py) file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.
+
+
 ## Fabric Additions
 This section covers some of the additional functionality added to Fabric.
 
@@ -42,6 +85,7 @@ def first():
 @task
 def second():
     print 'second'
+
 after(first, second)
 ```
 
@@ -115,45 +159,3 @@ def dosomething():
 ```
 
 It's a small difference syntactically, but makes it quite a bit easier when you don't have to consider whether a value is a `callable` or not.
-
-## Deploying
-Capistrano deploys code in roughly these steps:
-
-1. Inside a `deploy_path`, create a `releases`, `shared`, and `repo` directory.
-1. Clone a repository into the `repo` directory.
-1. Extract a configurable branch into a subdirectory of the `releases` directory.
-1. Symlink that subdirectory to a `current` folder in the `deploy_path`
-1. Symlink shared files/folders in `shared` into `current`.
-
-This means that your current code lives in `current`, and new deploys just change where that directory links to.  Rollbacks are as easy as changing where `current` points to.  You also get the benefit of automatically retaining the contents of whatever shared files/folders you want to keep (they actually live in the `shared` directory, and just get re-linked inside your `current` folder on each deploy/rollback).
-
-Here's an example of all that's needed in a fabfile to do all of this:
-
-```python
-from fake.api import env, run, task
-from fake.tasks.deploy import *
-
-env.roledefs = {
-    'staging': {
-        'hosts': ['staging.example.com'],
-        'branch': 'staging'
-    },
-    'production': {
-        'hosts': ['example.com'],
-        'branch': 'master'
-    }
-}
-
-env.forward_agent = True
-env.deploy_path = '/home/deployer/app'
-env.user = 'deployer'
-env.repo_url = 'git@github.com:user/repo.git'
-env.linked_dirs = ['static']
-
-@task
-def restart():
-    run('service gunicorn restart')
-after(finished, restart)
-```
-
-Then, to deploy to staging it's as simple as running `fab -R staging deploy`.  After the deploy (or rollback) finishes (see the [`framework.py`](fake/tasks/framework.py) file in the `tasks` folder to see the steps) then the gunicorn service would be restarted.
