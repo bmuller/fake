@@ -4,6 +4,7 @@
 1. the ability to inject tasks in a dependency chain (before you run `TaskA`, always run `TaskB`)
 1. configuration variables with values that are role specific
 1. configuration values that are evaluated at run time (i.e., the ability to have values that are `callable` at runtime)
+1. the ability to define a sane flow convention for deployment and then give people the ability to override/inject only what they need to (see [`framework.py`](fake/tasks/framework.py) for an example).  [Convention over configuration!](https://en.wikipedia.org/wiki/Convention_over_configuration)
 
 **Fake** does two things - it adds this necessary functionality as a layer on top of fabric and then provides a starting template for deploying code (with features like fast rollbacks, etc).
 
