@@ -135,11 +135,11 @@ from fake.tasks.deploy import *
 env.roledefs = {
     'staging': {
         'hosts': ['staging.example.com'],
-	'branch': 'staging'
+        'branch': 'staging'
     },
     'production': {
         'hosts': ['example.com'],
-	'branch': 'master'
+        'branch': 'master'
     }
 }
 
