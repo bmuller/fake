@@ -5,8 +5,8 @@ class Path(object):
     def __init__(self, *paths):
         self.path = normpath(join(*paths))
 
-    def join(self, other):
-        return Path(str(self), str(other))
+    def join(self, *others):
+        return Path(str(self), *others)
 
     def __str__(self):
         return self.path
