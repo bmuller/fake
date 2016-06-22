@@ -25,13 +25,20 @@ env.setdefault('branch', 'master')
 env.setdefault('keep_releases', 5)
 
 
+def _set_scm():
+    """
+    Import correct SCM module into environment.
+    """
+    g = globals()
+    if 'scm' not in g:
+        g['scm'] = import_module("fake.scm.%(scm)s" % env)
+
+
 @task
 def starting():
     """
     Start a deployment, make sure server(s) ready.
     """
-    # import correct SCM module
-    globals()['scm'] = import_module("fake.scm.%(scm)s" % env)
     execute('check')
     execute('set_previous_revision')
 
@@ -43,6 +50,7 @@ def check():
     """
     if 'deploy_path' not in env or 'repo_url' not in env:
         raise RuntimeError("You must set deploy_path and repo_url in your environment")
+    _set_scm()
     execute(scm.check)
     run("mkdir -p %s %s" % (paths.shared_path, paths.releases_path))
     if len(env.linked_dirs) > 0:
@@ -67,6 +75,7 @@ def updating():
     """
     env.release_timestamp = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     paths.release_path = paths.releases_path.join(env.release_timestamp)
+    _set_scm()
     execute(scm.create_release)
     execute(scm.set_current_revision)
     with cd(paths.release_path):
