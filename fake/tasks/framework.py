@@ -3,7 +3,7 @@ Based on https://github.com/capistrano/capistrano/blob/master/lib/capistrano/tas
 """
 
 from fake.decorators import task
-from fake.api import execute
+from fake.api import execute, env
 
 
 @task
@@ -104,4 +104,5 @@ def deploy():
         'starting started updating updated '
         'publishing published finishing finished'
     )
-    map(execute, tasks.split())
+    for task in tasks.split():
+        execute(task, host=env.host)

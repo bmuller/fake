@@ -10,12 +10,12 @@ class WrappedCallableDependenciesTask(WrappedCallableTask):
 
     def run(self, *args, **kwargs):
         for func in self.prereqs:
-            execute(func)
+            execute(func, host=env.host)
         # set role specific variables from roledefs
         with settings(**self.role_settings()):
             result = super(WrappedCallableDependenciesTask, self).run(*args, **kwargs)
         for func in self.postreqs:
-            execute(func)
+            execute(func, host=env.host)
         return result
 
     def role_settings(self):

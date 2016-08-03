@@ -39,8 +39,8 @@ def starting():
     """
     Start a deployment, make sure server(s) ready.
     """
-    execute('check')
-    execute('set_previous_revision')
+    execute('check', host=env.host)
+    execute('set_previous_revision', host=env.host)
 
 
 @task
@@ -51,7 +51,7 @@ def check():
     if 'deploy_path' not in env or 'repo_url' not in env:
         raise RuntimeError("You must set deploy_path and repo_url in your environment")
     _set_scm()
-    execute(scm.check)
+    execute(scm.check, host=env.host)
     run("mkdir -p %s %s" % (paths.shared_path, paths.releases_path))
     if len(env.linked_dirs) > 0:
         dirs = map(str, paths.shared_path.rooted(env.linked_dirs))
@@ -76,12 +76,12 @@ def updating():
     env.release_timestamp = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     paths.release_path = paths.releases_path.join(env.release_timestamp)
     _set_scm()
-    execute(scm.create_release)
-    execute(scm.set_current_revision)
+    execute(scm.create_release, host=env.host)
+    execute(scm.set_current_revision, host=env.host)
     with cd(paths.release_path):
         run("echo \"%s\" >> REVISION" % env.current_revision)
-    execute("symlink_folders")
-    execute("symlink_files")
+    execute("symlink_folders", host=env.host)
+    execute("symlink_files", host=env.host)
 
 
 @task
@@ -142,7 +142,7 @@ def publishing():
 
 @task
 def finishing():
-    execute("cleanup")
+    execute("cleanup", host=env.host)
 
 
 @task
@@ -170,7 +170,7 @@ def reverting():
 
 @task
 def finishing_rollback():
-    execute("cleanup_rollback")
+    execute("cleanup_rollback", host=env.host)
 
 
 @task
@@ -183,7 +183,6 @@ def cleanup_rollback():
     args = (paths.current_path, last_release_path)
     if test("[ `readlink %s` != %s ]" % args):
         fname = Path(paths.deploy_path, "rolled-back-release-%s.tar.gz" % last_release)
-        print "tar -czf %s %s" % (fname, last_release_path)
         run("tar -czf %s %s" % (fname, last_release_path))
         run("rm -rf %s" % last_release_path)
     else:

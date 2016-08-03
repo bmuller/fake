@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-from fake import version
+from fake import __version__
 
 setup(
     name="fake",
-    version=version,
+    version=__version__,
     description="Make Python's Fabric act like Ruby's Capistrano",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
@@ -12,5 +12,5 @@ setup(
     url="http://github.com/bmuller/fake",
     packages=find_packages(),
     requires=["fabric"],
-    install_requires=['fabric>=1.11']
+    install_requires=['fabric>=1.12']
 )
