@@ -73,7 +73,10 @@ def updating():
     """
     Update server(s) by setting up a new release.
     """
-    env.release_timestamp = time.strftime('%Y%m%d%H%M%S', time.gmtime())
+    # this may have been set on a previous run on another server.
+    # it's used later, so don't update if it's already been set.
+    if 'release_timestamp' not in env:
+        env.release_timestamp = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     paths.release_path = paths.releases_path.join(env.release_timestamp)
     _set_scm()
     execute(scm.create_release, host=env.host)
