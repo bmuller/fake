@@ -23,14 +23,15 @@ class WrappedCallableDependenciesTask(WrappedCallableTask):
         rdefs = env.get('roledefs', {})
         for erole in env.effective_roles:
             settings = rdefs.get(erole, {})
-            hosts = rdefs.get(erole, [])
             result.update(settings if isinstance(settings, dict) else {})
-            if isinstance(settings, dict) and 'hosts' in settings:
-                hosts = settings['hosts']
+        for role in [r for r in env.roles if r in rdefs]:
+            hosts = rdefs[role]
+            if isinstance(hosts, dict) and 'hosts' in hosts:
+                hosts = hosts['hosts']
             if callable(hosts):
                 hosts = hosts()
-            if env.host in hosts:
-                result['host_roles'].append(erole)
+            if isinstance(hosts, list) and env.host in hosts:
+                result['host_roles'].append(role)
         for key in result.iterkeys():
             value = result[key]
             result[key] = value() if callable(value) else value
