@@ -160,3 +160,7 @@ def dosomething():
 ```
 
 It's a small difference syntactically, but makes it quite a bit easier when you don't have to consider whether a value is a `callable` or not.
+
+## Other Additions
+
+The `env` variable also has a `host_roles` value that will be set to all of the roles of the current host.  This may be different from `env.effective_roles` if you have called the task with a specific host.

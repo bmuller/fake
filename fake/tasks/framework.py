@@ -92,7 +92,8 @@ def rollback():
         'starting started reverting reverted '
         'publishing published finishing_rollback finished'
     )
-    map(execute, tasks.split())
+    for task in tasks.split():
+        execute(task, host=env.host)
 
 
 @task

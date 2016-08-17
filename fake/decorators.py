@@ -19,11 +19,18 @@ class WrappedCallableDependenciesTask(WrappedCallableTask):
         return result
 
     def role_settings(self):
-        result = {}
+        result = {'host_roles': []}
         rdefs = env.get('roledefs', {})
         for erole in env.effective_roles:
             settings = rdefs.get(erole, {})
+            hosts = rdefs.get(erole, [])
             result.update(settings if isinstance(settings, dict) else {})
+            if isinstance(settings, dict) and 'hosts' in settings:
+                hosts = settings['hosts']
+            if callable(hosts):
+                hosts = hosts()
+            if env.host in hosts:
+                result['host_roles'].append(erole)
         for key in result.iterkeys():
             value = result[key]
             result[key] = value() if callable(value) else value
